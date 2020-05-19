@@ -1,0 +1,115 @@
+<!-- Author: Matt Pigliavento -->
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+
+<title>Insert Pony</title>
+<body>
+
+	<form id="pony_form" action="http://breimer.sienacs.com/courses/csis-390-s17/projects/project2/insert_pony.php" method="get">	
+	</form>
+	
+	<script src="script.js"></script>
+	
+	<script>
+        var newForm = document.querySelector("#pony_form");
+        
+        newForm.appendChild(makeInput("first_name", "text", "", "First Name:", true));
+        
+        newForm.appendChild(makeInput("last_name", "text", "", "Last Name:", true));
+        
+        newForm.appendChild(makeInput("nickname", "text", "", "Nickname:", false));
+        
+        newForm.appendChild(makeInput("cutie_mark", "text", "", "Cutie Mark:", false));
+        
+        newForm.appendChild(makeInput("password", "password", "", "Password:", true));
+        
+        newForm.appendChild(makeInput("email", "email", "", "Email:", true));
+        
+        newForm.appendChild(makeInput("pony_birthday", "date", "", "Birthday:", true));
+        
+        var colors = ["", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Violet", "Pink"];
+        
+        newForm.appendChild(makeSelect("pony_color", colors, "Color:", true));
+        
+        var ponyTypes = ["Earth Pony", "Alicorn", "Pegasus", "Unicorn"];
+        
+        newForm.appendChild(makeRadio("pony_type", ponyTypes, "Type:", true));
+        
+        var ponyLand = ["Ponyville", "Canterlot", "Cloudsdale", "Crystal Empire", "Everfree Porest", "Manehattan", "Appleloosa", "Dragon Lands", "Bronyville"];
+        
+        newForm.appendChild(makeRadio("pony_land", ponyLand, "Land:", false));
+        
+        var strengths = ["Friendship", "Humility", "Flight", "Music", "Cooking", "Charm", "Combat"];
+        
+        newForm.appendChild(makeCheckbox("pony_strength[]", strengths, "Strengths:", false));
+        
+        var weaknesses = ["Evilness", "Impatience", "Disorganization", "Dishonesty", "Shy", "Lazy", "Selfish", "Arrogance"];
+        
+        newForm.appendChild(makeCheckbox("pony_weakness[]", weaknesses, "Weaknesses:", true));
+        
+        newForm.appendChild(makeButton("action_button", "submit", "Insert"));
+        
+        newForm.appendChild(makeButton("reset_button", "reset", "Clear"));
+        
+        newForm.addEventListener("submit", checkForm);
+        
+        var friendship = document.querySelector("#Friendship");
+        friendship.checked = true;
+        friendship.addEventListener("click", function() {
+            document.querySelector("#Evilness").checked = true;
+            document.querySelector("#first_name").value = "Nightmare";
+            document.querySelector("#last_name").value = "Moon";
+            document.querySelector("#nickname").value = "Crazy Princess Luna";
+            document.querySelector("#cutie_mark").value = "Crescent Moon";
+        });
+        
+        var colorChanger = document.querySelector("#pony_color");
+        colorChanger.addEventListener("change", function(){
+            var val = colorChanger.value;
+            if (val == "")
+            {
+                document.querySelector("body").style.backgroundColor = "white";    
+            }
+            else
+            {
+                document.querySelector("body").style.backgroundColor = val;        
+            }
+        });
+        
+        var pegChange = document.querySelector("#Pegasus");
+        pegChange.addEventListener("click", function() {
+            document.querySelector("#Flight").checked = true;    
+        });
+        
+        var aliChange = document.querySelector("#Alicorn");
+        aliChange.addEventListener("click", function() {
+            document.querySelector("#Flight").checked = true;    
+            document.querySelector("#Arrogance").checked = true; 
+        });
+        
+        var clickCount = 0;
+        var brony = document.querySelector("#Bronyville");
+        brony.addEventListener("click", function() {
+            clickCount++;
+            if (clickCount == 1)
+            {
+                alert("Please don't choose that... definitely don't try that again...");
+                brony.checked = false;
+            }
+            if (clickCount == 2)
+            {
+                alert("If you try to click that one more time, something bad will happen...");
+                brony.checked = false;
+            }
+            if (clickCount == 3)
+            {
+                alert("Okay, you've lost your form privileges. Don't say I didn't warn you.");
+                document.querySelector("body").style.display = "none";
+            }
+        });
+	</script>
+		
+</body>
+</html>

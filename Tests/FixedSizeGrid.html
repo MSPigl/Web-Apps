@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Fixed Size Grid</title>
+        <meta charset="utf-8">
+    </head>
+    
+    <body>
+        <canvas id="canvas" style="border: 1px solid black; height: 95%;"></canvas>
+        <script>
+            var canvas = document.querySelector("#canvas");
+            canvas.width = canvas.height;
+            var ctx = canvas.getContext("2d");
+            var rows = 10;
+            var size = ((canvas.height/rows) + (canvas.width/rows)) / 2;
+            ctx.fillStyle = "#FFFFFF";
+            
+            for (var i = 0; i < rows; i++)
+            {
+                for (var j = 0; j < rows; j++)
+                {
+                    ctx.fillRect(j * size, i * size, size, size);
+                }
+            }
+        </script>
+            
+    </body>
+</html>

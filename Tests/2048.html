@@ -1,0 +1,306 @@
+<!-- TO-DO: add fail-state and more colors -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>2048 Clone</title>
+    </head>
+
+    <body>
+        <canvas id="canvas" height="500px" width="500px" style="border: 1px solid black;"></canvas>
+        
+        <script>
+            function Tile(x, y, color)
+            {
+                //position in grid
+                this.x = x;
+                this.y = y;
+                
+                this.empty = true;
+                
+                this.colorIndex = 0; 
+                this.color = color;
+                
+                this.clear = function(){
+                    this.empty = true;
+                    this.color = "#FFFFFF";
+                    this.colorIndex = 0;
+                };
+                
+                this.upgrade = function(){
+                    this.colorIndex++;
+                    this.color = colors[this.colorIndex];
+                };
+            }
+            
+            function initGrid()
+            {           
+                for (var i = 0; i < numRows; i++)
+                {
+                    board[i] = [];
+                    for (var j = 0; j < numRows; j++)
+                    {
+                       board[i][j] = new Tile(i, j, "#FFFFFF"); 
+                    }
+                }
+                
+                setPieces(true);
+            }
+            
+            function setPieces(startup)
+            {
+                var row, col;
+                if (startup)
+                {
+                    row = Math.floor(Math.random() * numRows);
+                    col = Math.floor(Math.random() * numRows);
+                    
+                    board[row][col].empty = false;
+                    board[row][col].color = colors[0];
+                }
+                
+                do
+                {
+                    row = Math.floor(Math.random() * numRows);
+                    col = Math.floor(Math.random() * numRows);
+                }
+                while(!board[row][col].empty)
+                    
+                board[row][col].empty = false;
+                board[row][col].color = colors[0];
+                
+                paint();
+            }
+            
+            function movePieces(keyCode)
+            {
+                if (keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40)
+                {
+                    if (keyCode == 39)
+                    {
+                        slideRightHelper();
+                    }
+                    else if (keyCode == 40)
+                    {
+                        slideDownHelper();
+                    }
+                    else
+                    {    
+                        for (var i = 0; i < numRows; i++)
+                        {
+                            for (var j = 0; j < numRows; j++)
+                            {
+                                switch(keyCode)
+                                {
+                                    case 37:
+                                        //left
+                                        slideLeft(i,j);
+                                        break;
+                                    case 38:
+                                        //up
+                                        slideUp(i,j);
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    setPieces(false);
+
+                    paint();
+                }
+            }
+            
+            function slideRightHelper()
+            {
+                for (var i = numRows - 1; i >= 0; i--)
+                {
+                    for (var j = numRows - 1; j >= 0; j--)
+                    {
+                        slideRight(i, j);
+                    }
+                }
+            }
+            
+            function slideDownHelper()
+            {
+                for (var i = numRows - 1; i >= 0; i--)
+                {
+                    for (var j = numRows - 1; j >= 0; j--)
+                    {
+                        slideDown(i, j);
+                    }
+                }
+            }
+            
+            function slideLeft(x, y)
+            {
+                if (y > 0 && !board[x][y - 1].empty && !board[x][y].empty)
+                {
+                    if (board[x][y].color === board[x][y - 1].color)
+                    {
+                        debugger;
+                        board[x][y - 1].upgrade();
+                        board[x][y].clear();
+                        
+                        //return slideLeft(x, y - 1);
+                        return true;
+                    }
+                }
+                    
+                if (y === 0 || !board[x][y - 1].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                
+                //debugger;
+                board[x][y - 1].color = board[x][y].color;
+                board[x][y - 1].colorIndex = board[x][y].colorIndex;
+                board[x][y - 1].empty = false;
+                board[x][y].clear();
+                
+                return slideLeft(x, y - 1);
+            }
+            
+            function slideRight(x, y)
+            {
+                if (y < numRows - 1 && !board[x][y + 1].empty && !board[x][y].empty)
+                {
+                    if (board[x][y].color === board[x][y + 1].color)
+                    {
+                        debugger;
+                        board[x][y + 1].upgrade();
+                        board[x][y].clear();
+                        
+                        return true;//slideRight(x, y + 1);
+                    }
+                }
+                
+                if (y === numRows - 1 || !board[x][y + 1].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x][y + 1].color = board[x][y].color;
+                board[x][y + 1].colorIndex = board[x][y].colorIndex;
+                board[x][y + 1].empty = false;
+                board[x][y].clear();
+                
+                return slideRight(x, y + 1);
+            }
+            
+            function slideUp(x, y)
+            {
+                if (x > 0 && !board[x - 1][y].empty && !board[x][y].empty)
+                {
+                    if (board[x][y].color === board[x - 1][y].color)
+                    {
+                        debugger;
+                        board[x - 1][y].upgrade();
+                        board[x][y].clear();
+                        
+                        return true;//slideUp(x - 1, y);
+                    }
+                }
+                
+                if (x === 0 || !board[x - 1][y].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x - 1][y].color = board[x][y].color;
+                board[x - 1][y].colorIndex = board[x][y].colorIndex;
+                board[x - 1][y].empty = false;
+                board[x][y].clear();
+                
+                return slideUp(x - 1, y);
+            }
+            
+            function slideDown(x, y)
+            {
+                if (x < numRows - 1 && !board[x + 1][y].empty && !board[x][y].empty)
+                {
+                    if (board[x][y].color === board[x + 1][y].color)
+                    {
+                        debugger;
+                        board[x + 1][y].upgrade();
+                        board[x][y].clear();
+                        
+                        return true;//slideUp(x + 1, y);
+                    }
+                }
+                
+                if (x === numRows - 1 || !board[x + 1][y].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x + 1][y].color = board[x][y].color;
+                board[x + 1][y].colorIndex = board[x][y].colorIndex;
+                board[x + 1][y].empty = false;
+                board[x][y].clear();
+                
+                return slideDown(x + 1, y);
+            }
+            
+            function paint()
+            {
+                var canvas = document.querySelector("#canvas");
+                var context = canvas.getContext("2d");
+                var winningTile;
+                var playerWon = false;
+                
+                for(var row = 0; row < numRows; row++)
+                {
+                    for(var col = 0; col < numRows; col++)
+                    {
+                        var temp = board[row][col];
+
+                        context.fillStyle = temp.color;
+                        context.fillRect(temp.y * size, temp.x * size, size, size);    
+                        
+                        context.strokeStyle = "#000000";
+                        context.strokeRect(temp.y * size, temp.x * size, size, size);
+                        
+                        if (temp.colorIndex === colors.length - 1)
+                        {
+                            playerWon = true;
+                            winningTile = temp;
+                        }
+                    }
+                }
+                
+                if (playerWon)
+                {
+                    playerWon = false;
+                    
+                    canvas.style.border = "1px solid #24a724";
+                    
+                    setTimeout(function(){
+                        canvas.style.border = "1px solid #000000";
+                        
+                        initGrid();
+                    }, 500);
+                }
+            }
+               
+            
+            /* Script body */
+            var board = [];
+            var numRows = 4;
+            var size = 500/numRows;
+            var colors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00","#FF00FF", "#000000"];
+            
+            initGrid();
+            
+            window.onkeydown = function(e) {
+                var key = e.keyCode ? e.keyCode : e.which;
+                
+                movePieces(key);
+            };
+            
+        </script>
+    </body>
+</html>

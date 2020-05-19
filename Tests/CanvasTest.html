@@ -1,0 +1,188 @@
+<!-- DOCTYPE html -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    
+    <body>
+        <!--<canvas id="canvas" height="500" width="500" style="border:1px solid #000000;"></canvas>-->
+        
+        <div id="rows">
+            <input id="rowsInput" type="text" placeholder="Number of rows"><br>
+            <input id="rowsButton" type="button" value="Next">
+        </div>
+        
+        <div id="cols" style="display: none">
+            <input id="colsInput" type="text" placeholder="Number of columns"><br>
+            <input id="colsButton" type="button" value="Next">
+        </div>
+        
+        <div id="size" style="display: none">
+            <input id="sizeInput" type="text" placeholder="Size of boxes"><br>
+            <input id="sizeButton" type="button" value="Next">
+        </div>
+        
+        <script>
+            /*
+            var canvas = document.querySelector("#canvas");
+            var context = canvas.getContext("2d");
+            
+            context.fillStyle = "#0000FF"
+            context.fillRect(0, 0, 100, 100);
+            */
+            
+            function randHexColor()
+            {
+                var color = "#";
+                
+                for (var i = 0; i < 6; i++)
+                {
+                    var num = Math.floor(Math.random() * 16);
+                    var value;
+                    
+                    if (num >= 10)
+                    {
+                        switch(num)
+                        {
+                            case 10:
+                                value = "A";
+                                break;
+                            case 11:
+                                value = "B";
+                                break;
+                            case 12:
+                                value = "C";
+                                break;
+                            case 13:
+                                value = "D";
+                                break;
+                            case 14:
+                                value = "E";
+                                break;
+                            case 15:
+                                value = "F";
+                        }
+                    }
+                    else
+                    {
+                        value = String(num);
+                    }
+                    
+                    color += value;
+                }
+                
+                return color;
+            }
+            
+            function drawGrid(row, col, boxSize)
+            {
+                var canvas = document.createElement("canvas");
+                canvas.setAttribute("height", row*boxSize);
+                canvas.setAttribute("width", col*boxSize);
+                canvas.style.border = "1px solid #000000";
+                
+                canvas.addEventListener("mouseover", function(){
+                    this.style.border = "5px solid " + randHexColor(); 
+                });
+                
+                canvas.addEventListener("mouseleave", function(){
+                    this.style.border = "1px solid #000000";
+                });
+                
+                canvas.addEventListener("dblclick", function(){
+                    drawGrid(row, col, boxSize);
+                    this.style.display = "none";
+                });
+                
+                document.querySelector("body").appendChild(canvas);
+                
+                var ctx = canvas.getContext("2d");
+                //ctx.fillStyle = "#0000FF";
+                
+                for (var i = 0; i < row; i++)
+                {
+                    for (var j = 0; j < col; j++)
+                    {                       
+                        ctx.fillStyle = randHexColor();
+                        
+                        ctx.fillRect(j * boxSize, i * boxSize, boxSize, boxSize);
+                        //ctx.stroke();
+                    }
+                }
+                //ctx.stroke();
+            }
+            
+            //drawGrid(100, 100, 5);
+            
+            var row, col, size;
+            
+            var field = document.querySelector("#rowsInput");
+            var button = document.querySelector("#rowsButton");
+            
+            button.addEventListener("click", function(){
+                var val = field.value.replace(/ /g, '');
+                val = parseInt(val);
+                
+                if (val !== "" && val !== NaN && val > 0)
+                {
+                    row = val;
+                    document.querySelector("#rows").style.display = "none";
+                    document.querySelector("#cols").style.display = "block";
+                    
+                    field = document.querySelector("#colsInput");
+                    button = document.querySelector("#colsButton"); 
+                    
+                    button.addEventListener("click", function(){
+                        val = field.value.replace(/ /g, '');
+                        val = parseInt(val);
+                        
+                        if (val !== "" && val !== NaN && val > 0)
+                        {
+                            col = val;                         
+                            document.querySelector("#cols").style.display = "none";
+                            document.querySelector("#size").style.display = "block";
+                            
+                            field = document.querySelector("#sizeInput");
+                            button = document.querySelector("#sizeButton");
+                            
+                            button.addEventListener("click", function(){
+                                val = field.value.replace(/ /g, '');
+                                val = parseInt(val);
+                                
+                                if (val !== "" && val !== NaN && val > 0)
+                                {
+                                    size = val;
+                                    document.querySelector("#size").style.display = "none";
+                                    drawGrid(row, col, size);
+                                }
+                                else
+                                {
+                                    var error = document.createElement("p");
+                                    error.innerHTML = "Input must be a integer";
+                                    error.style.color = "#FF0000";
+                                    document.querySelector("#size").appendChild(error);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            var error = document.createElement("p");
+                            error.innerHTML = "Input must be a integer";
+                            error.style.color = "#FF0000";
+                            document.querySelector("#cols").appendChild(error);
+                        }
+                    });
+                }
+                else
+                {
+                    var error = document.createElement("p");
+                    error.innerHTML = "Input must be a integer";
+                    error.style.color = "#FF0000";
+                    document.querySelector("#rows").appendChild(error);
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,315 @@
+<!-- DOCTYPE html -->
+<html>
+    <head>
+        
+    </head>
+    <body>
+        <canvas id="canvas" height="500px" width="500px" style="border: 1px solid black;"></canvas>
+        
+        <script>
+            function Tile(x, y, color)
+            {
+                this.x = x;
+                this.y = y;
+                this.index = 0;
+                
+                this.empty = true;
+                this.visited = false;
+                
+                this.color = color;
+            }
+            
+            function GridPoint(x, y)
+            {
+                this.x = x;
+                this.y = y;
+                
+                //methods to compare two GridPoint objects
+                this.equals = function(point){
+                    if (this.x === point.x && this.y === point.y)
+                    {
+                        return true;
+                    }
+                    
+                    return false;
+                }
+             }
+            
+            function slideLeft(x, y)
+            {
+                if (y === 0 || !board[x][y - 1].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                debugger;
+                board[x][y - 1].color = board[x][y].color;
+                board[x][y - 1].empty = false;
+                board[x][y].empty = true;
+                board[x][y].color = "#FFFFFF";
+                
+                return true;
+            }
+            
+            function slideRight(x, y)
+            {
+                if (y === numRows - 1 || !board[x][y + 1].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x][y + 1].color = board[x][y].color;
+                board[x][y + 1].empty = false;
+                board[x][y].empty = true;
+                board[x][y].color = "#FFFFFF";
+                
+                return true;
+            }
+            
+            function slideUp(x, y)
+            {
+                if (x === 0 || !board[x - 1][y].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x - 1][y].color = board[x][y].color;
+                board[x - 1][y].empty = false;
+                board[x][y].empty = true;
+                board[x][y].color = "#FFFFFF";
+                
+                return true;
+            }
+            
+            function slideDown(x, y)
+            {
+                if (x === numRows - 1 || !board[x + 1][y].empty || board[x][y].empty)
+                {
+                    return false;
+                }
+                //debugger;
+                board[x + 1][y].color = board[x][y].color;
+                board[x + 1][y].empty = false;
+                board[x][y].empty = true;
+                board[x][y].color = "#FFFFFF";
+                
+                return true;
+            }
+            
+            function initGrid()
+            {
+                numRows++;
+                size -= 10;
+                
+                var canvas = document.querySelector("#canvas");
+                canvas.height = numRows * size;
+                canvas.width = numRows * size;
+                
+                
+                for (var i = 0; i < numRows; i++)
+                {
+                    board[i] = [];
+                    for (var j = 0; j < numRows; j++)
+                    {
+                       board[i][j] = new Tile(i, j, "#FFFFFF"); 
+                    }
+                }
+                
+                setPieces(true);
+                
+                clearedCount = 0;
+                
+                paint();
+                
+                startTime = new Date();
+                
+                timeTaken = 0;
+                
+                var interval = setInterval(function(){
+                    timeTaken++;
+                    if (clearedCount === numRows * numRows)
+                    {
+                        timeTaken = 0;
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            }
+            
+            function setPieces(setPlayer)
+            {
+                if (setPlayer)
+                {
+                    var startRow = Math.floor(Math.random() * numRows);
+                    var startCol = Math.floor(Math.random() * numRows);
+                    board[startRow][startCol].color = "#10d310";
+                    board[startRow][startCol].empty = false;
+                    player = new GridPoint(startRow, startCol);    
+                }
+                
+                var goalRow = 0;
+                var goalCol = 0;
+                do
+                {
+                    goalRow = Math.floor(Math.random() * numRows);
+                    goalCol = Math.floor(Math.random() * numRows);
+                }
+                while(player.x === goalRow && player.y === goalCol);
+                
+                if (!board[goalRow][goalCol].visited)
+                {
+                    board[goalRow][goalCol].color = "#d41414";
+                    goal = new GridPoint(goalRow, goalCol);
+                }
+                else
+                {
+                    setPieces(false);
+                }
+                
+            }
+            
+            function slideTiles(keyCode)
+            {
+                var found = false;
+                for (var i = 0; i < numRows; i++)
+                {
+                    for (var j = 0; j < numRows; j++)
+                    {
+                        switch(keyCode)
+                        {
+                            case 37:
+                                if (slideLeft(i, j)) {found = true;}
+                                break;
+                            case 38:
+                                if (slideUp(i, j)) {found = true;}
+                                break;
+                            case 39:
+                                if (slideRight(i, j)) {found = true;}
+                                break;
+                            case 40:
+                                if (slideDown(i, j)) {found = true;}
+                                break;
+                        }
+                        
+                        if (found)
+                        {
+                            paint();
+                            return;
+                        }
+                    }
+                }
+                
+                paint();
+            }
+            
+            function findTile(keyCode)
+            {
+                switch(keyCode)
+                {
+                    case 37:
+                        if (slideLeft(player.x, player.y))
+                        {
+                            player.y -= 1;
+                        }
+                        break;
+                    case 38:
+                        if (slideUp(player.x, player.y))
+                        {
+                            player.x -= 1;
+                        }
+                        break;
+                    case 39:
+                        if (slideRight(player.x, player.y))
+                        {
+                            player.y += 1;
+                        }
+                        break;
+                    case 40:
+                        if (slideDown(player.x, player.y))
+                        {
+                            player.x += 1;
+                        }
+                        break;
+                }
+                
+                if (player.equals(goal))
+                {
+                    endTime = new Date();
+                    var minutes = endTime.getMinutes() - startTime.getMinutes();
+                    var seconds = endTime.getSeconds() - startTime.getSeconds();
+                    var formattedTime = minutes + ":" + seconds;
+                    
+                    board[goal.x][goal.y].visited = true;
+                    
+                    if (++clearedCount === numRows * numRows)
+                    {
+                        setTimeout(function(){
+                            alert("Board filled!");
+                            initGrid();
+                        }, 100);
+                    }
+                    else
+                    {
+                        setPieces(false);
+                    }
+                }
+                
+                paint();
+            }
+            
+            function paint()
+            {
+                var canvas = document.querySelector("#canvas");
+                var context = canvas.getContext("2d");
+                
+                for(var row = 0; row < numRows; row++)
+                {
+                    for(var col = 0; col < numRows; col++)
+                    {
+                        var temp = board[row][col];
+                        if (temp.visited)
+                        {
+                            context.fillStyle = "#eded2d";
+                            context.fillRect(temp.y * size, temp.x * size, size, size); 
+                            
+                            if (clearedCount < numRows * numRows)
+                            {
+                                context.fillStyle = board[player.x][player.y].color;
+                                context.fillRect(player.y * size, player.x * size, size, size);    
+                            }
+                        }
+                        else
+                        {
+                            context.fillStyle = temp.color;
+                            context.fillRect(temp.y * size, temp.x * size, size, size);    
+                        }
+                        context.strokeStyle = "#000000";
+                        context.strokeRect(temp.y * size, temp.x * size, size, size);
+                    }
+                }
+            }
+            
+            /***********   
+             *         *
+             *   MAIN  *
+             *         *
+             *         */        
+            
+            var board = [];
+            var positions = [];
+            var clearedCount, numRows, size;
+            var player, goal;
+            var startTime, endTime;
+            var timeTaken;
+            
+            numRows = 3;
+            size = 110;
+            
+            initGrid();
+            
+            window.onkeydown = function(e){
+                var key = e.keyCode ? e.keyCode : e.which;
+                //slideTiles(key);
+                findTile(key);
+            };
+        </script>
+    </body>
+</html>

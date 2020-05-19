@@ -1,0 +1,89 @@
+<!-- Author: Matthew Pigliavento -->
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<title>Basic Form</title>
+<style>
+    body {
+        width: 500px;
+    }
+    div {
+        border: 1px solid grey;
+        padding: 5px;
+        margin: 5px;
+    }
+    div label:nth-child(1) {
+        font-weight: bold;
+    }
+</style>
+<body>
+
+<form action="http://breimer.sienacs.com/courses/csis-390-s17/labs/lab2/insert_pony.php" method="get">
+
+	<div>
+		<label for="pony_name">Name:</label>
+		<input type="text" name="pony_name" id="pony_name">
+	</div>
+	
+	<div>
+		<label>Type:</label><br>
+
+		<input type="radio" name="pony_type" id="type_earth_pony" value="Earth Pony">
+		<label for="type_earth_pony">Earth Pony</label><br>
+
+		<input type="radio" name="pony_type" id="type_unicorn"  value="Unicorn">
+		<label for="type_unicorn">Unicorn</label><br>
+        
+        <input type="radio" name="pony_type" id="type_pegasus"  value="Pegasus">
+		<label for="type_pegasus">Pegasus</label><br>
+        
+        <input type="radio" name="pony_type" id="type_alicorn"  value="Alicorn">
+		<label for="type_alicorn">Alicorn</label><br>
+	</div>
+	
+	<div>
+		<label>Skills:</label><br>
+		
+		<input type="checkbox" name="skill[]" id="skill_strength" value="Strength">
+		<label for="skill_strength">Strength</label><br>
+		
+		<input type="checkbox" name="skill[]" id="skill_flight" value="Flight">
+		<label for="skill_flight">Flight</label><br>
+        
+        <input type="checkbox" name="skill[]" id="skill_music" value="Music">
+		<label for="skill_music">Music</label><br>
+        
+        <input type="checkbox" name="skill[]" id="skill_cooking" value="Cooking">
+		<label for="skill_cooking">Cooking</label><br>
+        
+        <input type="checkbox" name="skill[]" id="skill_piercing_glare" value="Piercing Glare">
+		<label for="skill_piercing_glare">Piercing Glare</label><br>
+        
+        <input type="checkbox" name="skill[]" id="skill_elbow_drop" value="Elbow Drop">
+		<label for="skill_elbow_drop">Elbow Drop</label><br>
+	</div>
+	
+	<div>
+		<label for="pony_color">Color</label><br>
+        <select name = "pony_color" id = "pony_color">
+            <option value="Red">Red</option>
+            <option value="Green">Green</option>
+            <option value="Blue">Blue</option>
+            <option value="Yellow">Yellow</option>
+            <option value="Pervenche">Pervenche</option>
+        </select>
+	</div>
+    
+    <div>	
+        <label for="pony_birthday">Birthday</label><br>
+		<input type="date" name="pony_birthday" id="pony_birthday">
+	</div>
+	
+	<div>	
+		<input type="submit" name="action_button" id="action_button" value="Insert">
+	</div>
+	
+</form>
+		
+</body>
+</html>

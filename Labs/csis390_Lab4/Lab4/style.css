@@ -1,0 +1,45 @@
+div {
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 10px;
+	margin: 5px;
+	background-color: white;
+}
+
+div.error {
+	border: 2px solid red;
+	color: red;	
+}
+
+div label:nth-child(1) {
+	font-weight: bold;
+}
+
+input, select {
+	font-size: 1.1rem;
+	padding: 5px 10px;
+}
+
+label {
+	font-size: 1.1rem;
+}
+
+input[type~="text"] {
+
+}
+
+input[type~="submit"], input[type~="reset"] {
+	font-size: 1rem;
+	padding: 10px 15px;
+	cursor: pointer;
+	border: 1px solid #444;
+	border-radius: 4px;
+	box-shadow: 2px 2px 3px #666;
+	background-color: lightgreen;
+	margin: 5px;
+}
+
+input[type~="reset"] {
+	background-color: pink;
+}
+

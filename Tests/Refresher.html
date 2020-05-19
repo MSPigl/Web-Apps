@@ -1,0 +1,125 @@
+<!-- DOCTYPE html -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Refresher Web Application</title>
+        <style>
+            li:hover
+            {
+                color: aqua;
+                cursor: pointer;
+            }
+            li
+            {
+                width: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id = "text_area">
+            
+        </div>
+        <script>
+            
+            function makeTextNode(text)
+            {
+                return document.createTextNode(text);
+            }
+            
+            function makeList(array)
+            {
+                var list = document.createElement("ul");
+
+                for(var i = 0; i < array.length; i++)    
+                {
+                    var element = document.createElement("li");
+                    element.setAttribute("value", array[i]);
+                    element.appendChild(makeTextNode(array[i]));
+
+                    list.appendChild(element);
+                    
+                    element.addEventListener("click", function(){
+                        if (this.parentNode.childElementCount == 1)
+                            {
+                                var par = this.parentNode;
+                                par.parentNode.removeChild(par);
+                                reset();
+                            }
+                        else
+                            {
+                                this.parentNode.removeChild(this); //<- slower than modifying CSS
+                                
+                                //this.style.display = "none"; <- faster than manipulating the DOM tree
+                            }
+                        
+                    });
+                }
+
+                return list;
+            }
+            
+            function start()
+            {
+                var div = document.querySelector("#text_area");
+                var array = [];
+                var input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("id", "input_area");
+                var label = document.createElement("label");
+                label.setAttribute("for", "#input_area");
+                label.appendChild(makeTextNode("Input a thing "));
+                label.appendChild(input);
+                div.appendChild(label);
+                div.appendChild(document.createElement("br"));
+
+                var submitButton = document.createElement("input");
+                var finishButton = document.createElement("input");
+                submitButton.setAttribute("type", "submit");
+                finishButton.setAttribute("type", "button");
+                submitButton.setAttribute("value", "Next");
+                finishButton.setAttribute("value", "Finish");
+
+                div.appendChild(submitButton);
+                div.appendChild(finishButton);
+
+                submitButton.addEventListener("click", function() {
+                    if (input.value !== "")
+                        {
+                            array.push(input.value);
+                            input.value = "";
+                            input.focus();
+                        }
+                });
+
+                finishButton.addEventListener("click", function(){
+                   div.innerHTML = "";
+                   div.appendChild(makeList(array)); 
+                });
+                
+                input.focus();
+            }
+            
+            function reset()
+            {
+                var text_area = document.querySelector("#text_area");
+                var div = document.createElement("div");
+                
+                var btn = document.createElement("input");
+                btn.setAttribute("type", "button");
+                btn.setAttribute("value", "Restart");
+                btn.setAttribute("class", "btn-large");
+                
+                div.appendChild(btn);
+                text_area.appendChild(div);
+                
+                btn.addEventListener("click", function(){
+                    text_area.removeChild(div);
+                    start();
+                })
+            }
+            
+            start();
+            
+        </script>
+    </body>
+</html>

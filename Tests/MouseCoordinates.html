@@ -1,0 +1,121 @@
+<!-- DOCTYPE html -->
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    
+    <body>
+        <canvas id="canvas" height="500" width="500" style="border: 1px solid #000000"></canvas>
+        
+        <form id="colors">
+            <input type="radio" class="color" value="#000000" name="colorList" checked="true"> Black<br>
+            <input type="radio" class="color" value="#FF0000" name="colorList"> Red<br>
+            <input type="radio" class="color" value="#00FF00" name="colorList"> Green<br>
+            <input type="radio" class="color" value="#0000FF" name="colorList"> Blue<br>
+            <input type="radio" class="color" value="#010101" name="colorList"> Random<br>
+        </form>
+        
+        <input type="button" id="clear" value="Clear Canvas">
+
+        <script>
+            function randHexColor()
+            {
+                var color = "#";
+                
+                for (var i = 0; i < 6; i++)
+                {
+                    var num = Math.floor(Math.random() * 16);
+                    var value;
+                    
+                    if (num >= 10)
+                    {
+                        switch(num)
+                        {
+                            case 10:
+                                value = "A";
+                                break;
+                            case 11:
+                                value = "B";
+                                break;
+                            case 12:
+                                value = "C";
+                                break;
+                            case 13:
+                                value = "D";
+                                break;
+                            case 14:
+                                value = "E";
+                                break;
+                            case 15:
+                                value = "F";
+                        }
+                    }
+                    else
+                    {
+                        value = String(num);
+                    }
+                    
+                    color += value;
+                }
+                
+                return color;
+            }
+            
+            var canvas = document.querySelector("#canvas");
+            canvas.width = window.innerWidth;
+            var context = canvas.getContext("2d");
+            var mouseHeld = false;
+            
+            var options = document.querySelectorAll(".color");
+            for (var i = 0; i < options.length - 1; i++)
+            {
+                options[i].onclick = function(event){context.fillStyle = this.value};
+                console.log("Added event to " + options[i].value);
+            }
+            options[i].addEventListener("click", function(){
+                alert("CLicked on random");
+                context.fillStyle = randHexColor();
+            });
+            
+            document.querySelector("#clear").onclick = function(event){
+                context.fillStyle = "#FFFFFF";
+                context.fillRect(0, 0, canvas.height, canvas.width);
+                context.fillStyle = "#000000";
+                options[0].checked = true;
+            };
+            
+            canvas.addEventListener("dblclick", function(){
+                var x = event.clientX - 8;
+                var y = event.clientY - 8;
+                
+                var color = randHexColor();
+                
+                context.fillStyle = color;
+                
+                context.fillRect(x, y, 50, 50);
+            });
+            
+            canvas.onmousedown = function(event){
+                mouseHeld = true;
+                canvas.style.cursor = "crosshair";
+            };
+            
+            canvas.onmouseup = function(event){
+                mouseHeld = false;
+                canvas.style.cursor = "default";
+            };
+            
+            canvas.onmouseout = function(event){
+                mouseHeld = false;
+                canvas.style.cursor = "default";    
+            };
+            
+            canvas.onmousemove = function(event){
+                if (mouseHeld)
+                {
+                    context.fillRect(event.clientX - 8, event.clientY - 8, 2, 2);
+                }
+            };
+        </script>
+    </body>
+</html>

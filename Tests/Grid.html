@@ -1,0 +1,622 @@
+<!-- DOCTYPE html -->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body
+            {
+                background-color: gainsboro;
+            }
+            
+            input
+            {
+                padding: 5px;
+                position: static;
+                margin: 10px;
+            }
+            
+            #inputArea
+            {
+                background-color: cadetblue;
+                border: 2px solid gray;
+                border-radius: 20px;
+
+            }
+            
+            .button
+            {
+                background-color: aqua;
+                border: 1px solid black;
+                border-radius: 5px; 
+            }
+            
+            .button:hover
+            {
+                background-color: aquamarine;
+                box-shadow: 10px 10px #0000000;
+                cursor: pointer;
+            }
+            
+            #scatter
+            {
+                position: relative;
+            }
+            
+            #border
+            {
+                position: relative;
+            }
+            
+            #reset
+            {
+                position: relative;
+            }
+            
+            #stop
+            {
+                position: relative;
+                background-color: firebrick;
+                border-color: darkgray;
+                color: aliceblue;
+            }
+            
+            #stop:hover
+            {
+                background-color: crimson;
+                border: 2px solid black;
+            }
+            
+            #wipe
+            {
+                position: relative;
+            }
+            
+            #reload
+            {
+                position: relative;
+                background-color: #eab31e;
+                border-color: darkgray;
+                color: black;
+            }
+            
+            #reload:hover
+            {
+                background-color: #eab31e;
+                background-color: #efbd36;
+                border: 2px solid black;
+            }
+            
+            canvas
+            {
+                margin: auto;
+            }
+            
+            p
+            {
+                padding: 5px;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div id="inputArea">
+            <input id="gridInput" type="text" placeholder="Grid size (N x N)"><br>
+            <input id="sizeInput" type="text" placeholder="Tile size (in pixels)"><br>
+            <input id="start" class="button" type="button" value="Start"><br>
+            <p id="gridError" style="display: none; color: #FF0000">Grid input must be a Number greater than 1</p>
+            <p id="sizeError" style="display: none; color: #FF0000">Size input must be a Number greater than 1</p>     
+        </div>
+        
+        <input type="button" id="scatter" class="button" value="ScatterPaint" style="display: none;">
+        <input type="button" id="border" class="button" value="BorderPaint" style="display: none;">
+        <input type="button" id="wipe" class="button" value="WipePaint" style="display: none;">
+        <input type="button" id="stop" class="button" value="Stop Animation" style="display: none;">
+        <input type="button" id="reset" class="button" value="Reset Grid" style="display: none;">
+        <input type="button" id="reload" class="button" value="New Grid" style="display: none;">
+        <canvas id="canvas" height="500" width="500" style="display: none; border: 1px solid #000000"></canvas>
+        
+        <script>
+            function randHexColor()
+            {
+                var color = "#";
+                
+                for (var i = 0; i < 6; i++)
+                {
+                    var num = Math.floor(Math.random() * 16);
+                    var value;
+                    
+                    if (num >= 10)
+                    {
+                        switch(num)
+                        {
+                            case 10:
+                                value = "A";
+                                break;
+                            case 11:
+                                value = "B";
+                                break;
+                            case 12:
+                                value = "C";
+                                break;
+                            case 13:
+                                value = "D";
+                                break;
+                            case 14:
+                                value = "E";
+                                break;
+                            case 15:
+                                value = "F";
+                        }
+                    }
+                    else
+                    {
+                        value = String(num);
+                    }
+                    
+                    color += value;
+                }
+                
+                return color;
+            }
+            
+            function tile(x, y, size, color)
+            {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.color = color;
+                
+                this.visited = false;
+            }
+            
+            function getGridLocation(canvas, event)
+            {
+                var rect = canvas.getBoundingClientRect();
+                return {
+                    x : event.clientX - rect.left,
+                    y : event.clientY - rect.top
+                };
+            }
+            
+            function checkClick(event)
+            {
+                var click = getGridLocation(canvas, event);
+                var sze = grid[0][0].size;
+                
+                //grid[Math.floor(click.x/sze)][Math.floor(click.y/sze)].color = "#000000";
+                //paint(rows);
+                targetPaint(Math.floor(click.x/sze), Math.floor(click.y/sze), sze);   
+            }
+            
+            function feelers(event)
+            {
+                var click = getGridLocation(canvas, event);
+                var sze = grid[0][0].size;
+                
+                var row = Math.floor(click.x/sze);
+                var col = Math.floor(click.y/sze);
+
+                tempRow = row - 1;
+                tempCol = col;
+                
+                while (++tempRow <= rows)
+                {
+                    targetPaint(tempRow, tempCol, sze);
+                }
+                
+                tempRow = row + 1;
+                
+                while (--tempRow >= 0)
+                {
+                    targetPaint(tempRow, tempCol, sze);   
+                }
+                
+                tempRow = row;
+                tempCol = col - 1;
+                
+                while(++tempCol <= rows)
+                {
+                    targetPaint(tempRow, tempCol, sze);
+                }
+                
+                tempCol = col + 1;
+                
+                while(--tempCol >= 0)
+                {
+                    targetPaint(tempRow, tempCol, sze);
+                }
+            }
+            
+            function isValidInput()
+            {
+                var div = document.querySelector("#inputArea");
+                var gridSize = document.querySelector("#gridInput");
+                var tileSize = document.querySelector("#sizeInput");
+                var gridError = document.querySelector("#gridError");
+                var tileError = document.querySelector("#sizeError");
+                var problem = false;
+                
+                var gridEntry = gridSize.value;
+                var tileEntry = tileSize.value;
+                
+                gridEntry = parseInt(gridEntry);
+                tileEntry = parseInt(tileEntry);
+                
+                if (isNaN(gridEntry) || gridEntry <= 0)
+                {
+                    gridSize.style.border = "1px solid #FF0000";
+                    
+                    gridError.style.display = "block";
+                    
+                    problem = true;
+                }
+                else
+                {
+                    gridSize.style.border = "1px solid #000000";
+                    gridError.style.display = "none";
+                }
+                
+                if (isNaN(tileEntry) || tileEntry <= 0)
+                {
+                    tileSize.style.border = "1px solid #FF0000";
+                    
+                    tileError.style.display = "block";
+                    
+                    problem = true;
+                }
+                else
+                {
+                    tileSize.style.border = "1px solid #000000";
+                    tileError.style.display = "none";
+                }
+                
+                if(problem)
+                {
+                    return 0;
+                }
+                
+                div.style.display = "none";
+                
+                return {
+                    numRows : gridEntry,
+                    tileSize : tileEntry
+                }
+            }
+            
+            function paint(rows)
+            {
+                var context = canvas.getContext("2d");
+                
+                for(var row = 0; row < rows; row++)
+                {
+                    for(var col = 0; col < rows; col++)
+                    {
+                        var temp = grid[row][col];
+                        context.fillStyle = temp.color;
+                        context.fillRect(temp.x * temp.size, temp.y * temp.size, temp.size, temp.size);
+                        context.strokeStyle = "#FFFFFF";
+                        context.strokeRect(temp.x * temp.size, temp.y * temp.size, temp.size, temp.size);
+                    }
+                }
+            }
+            
+            function targetPaint(row, col, size)
+            {
+                //alert("Row: " + row + " | Col: " + col + " | " + "Size: " + size);
+                var context = canvas.getContext("2d");
+                
+                context.fillStyle = "#000000";
+                context.fillRect(row * size, col * size, size, size);
+                context.strokeStyle = "#FFFFFF";
+                context.strokeRect(row * size, col * size, size, size);
+            }
+            
+            function scatterPaint()
+            {   
+                var start = new Date();
+                console.log("ScatterPaint called");
+                
+                var row, col;
+                do
+                {
+                    row = Math.floor(Math.random() * rows);
+                    col = Math.floor(Math.random() * rows);
+                }
+                while(grid[row][col].visited)                
+                      
+                targetPaint(row, col, grid[row][col].size);
+                grid[row][col].visited = true;
+                
+                var end = new Date();
+                
+                console.log("Time taken: " + (end.getMilliseconds() - start.getMilliseconds()) + "ms");
+            }
+            
+            function canPaintRight(currRow, currCol, maxCol, guide)
+            {
+                //alert("Current Column: " + currCol + " | Next door has been visited: " + grid[currRow][currCol + 1].visited);
+                if ((currCol < maxCol - 1) && !grid[currRow][currCol + 1].visited)
+                {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function canPaintLeft(currRow, currCol)
+            {
+                //alert("Current Column: " + currCol + " | Next door has been visited: " + grid[currRow][currCol - 1].visited);
+                if ((currCol > 0) && !grid[currRow][currCol - 1].visited)
+                {
+                    return true;
+                }
+                
+                return false; 
+            }
+            
+            function canPaintDown(currCol, currRow, maxRow)
+            {
+                //alert("Current Row: " + currRow + " | Next door has been visited: " + grid[currRow + 1][currCol].visited);
+                if ((currRow < maxRow - 1) && !grid[currRow + 1][currCol].visited)
+                {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function canPaintUp(currCol, currRow)
+            {
+                //alert("Current Row: " + currRow + " | Next door has been visited: " + grid[currRow - 1][currCol].visited);
+                if ((currRow > 0) && !grid[currRow - 1][currCol].visited)
+                {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            function borderPaint(row, col)
+            {
+                if (row < rows && col < rows)
+                {
+                    targetPaint(row, col, grid[row][col].size);   
+                }
+            }
+            
+            function wipePaint(row, col)
+            {
+                targetPaint(row, col, grid[0][0].size);
+                grid[row][col].visited = true;
+            }
+            
+            document.getElementById("gridInput").focus();
+            
+            var rows, size, speed;
+            var toggled = false;
+            
+            var button = document.querySelector("#start");          
+            var canvas = document.querySelector("#canvas"); 
+            var scatterButton = document.querySelector("#scatter");
+            var borderButton = document.querySelector("#border");
+            var resetButton = document.querySelector("#reset");
+            var stopButton = document.querySelector("#stop");
+            var wipeButton = document.querySelector("#wipe");
+            var reloadButton = document.querySelector("#reload");
+            
+            canvas.onclick = function() {
+                if (toggled)
+                {
+                    toggled = false;
+                    canvas.style.cursor = "default";
+                }
+                else
+                {
+                    toggled = true;
+                    canvas.style.cursor = "crosshair";
+                }
+            };
+            canvas.onmousemove = function(event) {
+                //console.log("Entered mouse move");
+                //console.log("Mouse pressed: " + toggled);
+                if (toggled)
+                {
+                    checkClick(event);
+                }
+            };
+            
+            canvas.ondblclick = feelers;
+            
+            var grid = [];
+            
+            button.onclick = function(){
+                var stuff = isValidInput();
+                if (stuff != 0)
+                {
+                    rows = stuff.numRows;
+                    size = stuff.tileSize;
+                    speed = 3;
+                    
+                    canvas.height = rows * size;
+                    canvas.width = rows * size;
+                    canvas.style.display = "block";
+                    scatterButton.style.display = "inline";
+                    borderButton.style.display = "inline";
+                    wipeButton.style.display = "inline";
+                    resetButton.style.display = "inline";
+                    reloadButton.style.display = "inline";
+
+                    for(var row = 0; row < rows; row++)
+                    {
+                        grid[row] = [];
+                        for(var col = 0; col < rows; col++)
+                        {
+                            grid[row][col] = new tile(row, col, size, randHexColor());        
+                        }
+                    }
+
+                    scatterButton.onclick = function(event){
+                        stopButton.style.display = "block";
+                        resetButton.style.display = "none";
+                        var numTiles = rows * rows;
+                        var changedTiles = 0;
+                        
+                        var id = setInterval(function(){
+                            stopButton.onclick = function(){
+                                clearInterval(id);
+                                stopButton.style.display = "none";
+                                resetButton.style.display = "inline";
+                            };
+                            if (changedTiles >= numTiles)
+                            {
+                                clearInterval(id);   
+                                resetButton.style.display = "inline";
+                                stopButton.style.display = "none";
+                                return;
+                            }
+                            changedTiles++;
+                            scatterPaint();
+                            
+                        }, speed);
+                        
+                        scatterButton.style.display = "none";
+                        borderButton.style.display = "none";
+                        wipeButton.style.display = "none";
+                    };
+                    
+                    borderButton.onclick = function(){
+                        stopButton.style.display = "block";
+                        resetButton.style.display = "none";
+                        
+                        var currRow = 0;
+                        var currCol = 0;
+                        var maxRow = rows;
+                        var maxCol = rows;
+                        
+                        //initial tile
+                        borderPaint(currRow, currCol);
+                        
+                        var interval = setInterval(function(){
+                            stopButton.onclick = function(){
+                                clearInterval(interval);
+                                stopButton.style.display = "none";
+                                resetButton.style.display = "inline";
+                            };
+                            
+                            if (canPaintRight(currRow, currCol, maxCol) && canPaintUp(currCol, currRow))
+                            {
+                                grid[currRow][currCol].visited = true;
+                                borderPaint(currCol, currRow - 1);
+                                currRow--;  
+                            }
+                            else if (canPaintRight(currRow, currCol, maxCol))
+                            {
+                                grid[currRow][currCol].visited = true;
+                                borderPaint(currCol + 1, currRow); 
+                                currCol++; 
+
+                                //alert("Moving right");
+                            }
+                            else if (canPaintDown(currCol, currRow, maxRow)) 
+                            {
+                                grid[currRow][currCol].visited = true;
+                                borderPaint(currCol, currRow + 1);
+                                currRow++; 
+                                //alert("Moving down");
+                            }
+                            else if (canPaintLeft(currRow, currCol)) 
+                            {
+                                grid[currRow][currCol].visited = true;
+                                borderPaint(currCol - 1, currRow); 
+                                currCol--; 
+                                //alert("Moving left");
+                            }
+                            else if (canPaintUp(currCol, currRow)) 
+                            {
+                                grid[currRow][currCol].visited = true;
+                                borderPaint(currCol, currRow - 1);
+                                currRow--; 
+                                //alert("Moving Up");
+                            }
+                            else
+                            {
+                                resetButton.style.display = "inline";
+                                stopButton.style.display = "none";
+                                clearInterval(interval);
+                            }
+                            
+                            borderButton.style.display = "none";
+                            scatterButton.style.display = "none";
+                            wipeButton.style.display = "none";
+                        }, speed);
+                        
+                    };
+                    
+                    resetButton.onclick = function(){
+                        for (var row = 0; row < rows; row++)
+                        {
+                            for (var col = 0; col < rows; col++)
+                            {
+                                grid[row][col].visited = false;
+                            }
+                        }
+                        
+                        paint(rows);
+                        
+                        scatterButton.style.display = "inline";
+                        borderButton.style.display = "inline";
+                        wipeButton.style.display = "inline";
+                    };
+                    
+                    wipeButton.onclick = function(){
+                        stopButton.style.display = "block";
+                        resetButton.style.display = "none";
+                        wipeButton.style.display = "none";
+                        
+                        var currRow = 0;
+                        var currCol = 0;
+                        var maxRow = rows;
+                        var maxCol = rows;
+                        
+                        wipePaint(currCol, currRow);
+                        
+                        var interval = setInterval(function(){
+                            stopButton.onclick = function(){
+                                clearInterval(interval);
+                                stopButton.style.display = "none";
+                                resetButton.style.display = "inline";
+                            };
+                            
+                            if (currRow <= maxRow - 1 && currCol >= maxCol - 1)
+                            {
+                                currRow++;
+                                currCol = 0;
+                                wipePaint(currCol, currRow);
+                            }
+                                
+                            if (!grid[maxRow - 1][maxCol - 1].visited)
+                            {
+                                //grid[currRow][currCol].visited = true;
+                                wipePaint(currCol + 1, currRow); 
+                                currCol++;
+                            }
+                            else
+                            {
+                                resetButton.style.display = "inline";
+                                stopButton.style.display = "none";
+                                clearInterval(interval);
+                            }
+                        }, speed);
+                        
+                        borderButton.style.display = "none";
+                        scatterButton.style.display = "none";
+                    };
+                    
+                    reloadButton.onclick = function() {window.location.reload()};
+                    
+                    paint(rows);
+                }
+            };
+        </script>
+    </body>
+</html>

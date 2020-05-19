@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="UTF-8">
+	<title>Lab 4</title>
+	<link rel="stylesheet" href="style.css">
+	<body>
+	
+		<form id="insert_form"></form>
+		<span id="error_message"></span>
+	
+		<script src="functions.js"></script>
+		<script>
+			var newForm = document.querySelector("#insert_form");
+			
+			newForm.appendChild(makeInput("text","username","","User Name: "));
+			
+			newForm.appendChild(makeInput("text","password","","Password: "));
+			
+			newForm.appendChild(makeInput("text","email","","Email: "));
+			
+			newForm.appendChild(makeInput("date","birthday","","Date of Birth: "));
+	
+			newForm.appendChild(makeSelect("age",makeArray(18,68),"Age: "));
+			
+			newForm.appendChild(makeSelect("years",makeArray(0,50),"Years of Experience: "));
+			
+			newForm.appendChild(makeInput("submit","insert_button","Insert"));
+			
+			newForm.addEventListener("submit",checkInputs);
+			
+			document.querySelector("#username").addEventListener("change", function(event) 
+			{
+				if (this.value == "root" || this.value == "admin") 
+				{
+					this.parentNode.setAttribute("class", "error")
+					document.querySelector("#error_message").innerHTML = "Invalid username";
+					document.querySelector("#insert_button").disabled = true;
+					event.preventDefault();
+				}
+				else 
+				{
+					this.parentNode.setAttribute("class", "")
+					document.querySelector("#error_message").innerHTML = "";					
+					document.querySelector("#insert_button").disabled = false;
+				}
+			});
+			document.querySelector("#password").addEventListener("change", function(event) 
+			{
+				if (this.value.length < 10) 
+				{
+					this.parentNode.setAttribute("class", "error")
+					document.querySelector("#error_message").innerHTML = "Invalid password";
+					document.querySelector("#insert_button").disabled = true;
+					event.preventDefault();
+				}
+				else 
+				{
+					this.parentNode.setAttribute("class", "")
+					document.querySelector("#error_message").innerHTML = "";					
+					document.querySelector("#insert_button").disabled = false;
+				}
+			});
+			document.querySelector("#age").addEventListener("change", function(event)
+			{
+				alert("hi");
+				var ageIn = parseInt(this.value);
+				var yearsIn = parseInt(document.querySelector("#years").value);
+				if (ageIn - yearsIn < 18)
+				{				
+					document.querySelector("#years").parentNode.setAttribute("class", "error")
+					document.querySelector("#error_message").innerHTML = "Age - experience must be >= 18";
+					document.querySelector("#insert_button").disabled = true;
+					event.preventDefault();
+				}	
+				else 
+				{
+					document.querySelector("#years").parentNode.setAttribute("class", "")
+					document.querySelector("#error_message").innerHTML = "";					
+					document.querySelector("#insert_button").disabled = false;
+				}
+			});
+			
+			document.querySelector("#years").addEventListener("change", function(event)
+			{
+				alert("hi");
+				var yearsIn  = parseInt(this.value);
+				var ageIn = parseInt(document.querySelector("#age").value);
+				if (ageIn - yearsIn < 18)
+				{				
+					this.parentNode.setAttribute("class", "error")
+					document.querySelector("#error_message").innerHTML = "Age - experience must be >= 18";
+					document.querySelector("#insert_button").disabled = true;
+					event.preventDefault();
+				}	
+				else 
+				{
+					this.parentNode.setAttribute("class", "")
+					document.querySelector("#error_message").innerHTML = "";					
+					document.querySelector("#insert_button").disabled = false;
+				}
+			});
+			
+		</script>
+	</body>
+</html>

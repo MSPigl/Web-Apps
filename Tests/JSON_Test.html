@@ -1,0 +1,39 @@
+<!-- DOCTYPE html -->
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>JSON Test</title>
+    </head>
+    
+    <body>
+        <script>
+            function myObject(firstName, lastName)
+            {
+                this.firstName = firstName;
+                this.lastName = lastName;
+            }
+            
+            var originalObject = new myObject("Sally", "Mae");
+            
+            var json = JSON.stringify(originalObject);
+            
+            var newObject = JSON.parse(json);
+            
+            var body = document.querySelector("body");
+            
+            var originalParagraph = document.createElement("p");
+            originalParagraph.innerHTML = "Original name: " + originalObject.firstName + " " + originalObject.lastName;
+            
+            var jsonParagraph = document.createElement("p");
+            jsonParagraph.innerHTML = json;
+            
+            var newParagraph = document.createElement("p");
+            newParagraph.innerHTML = "Name after JSON: " + newObject.firstName + " " + newObject.lastName;
+            
+            body.appendChild(originalParagraph);
+            body.appendChild(jsonParagraph);
+            body.appendChild(newParagraph);
+        </script>
+    </body>
+</html>

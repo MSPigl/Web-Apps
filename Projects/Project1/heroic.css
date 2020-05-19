@@ -1,0 +1,75 @@
+body 
+{
+    background-color: black;
+}
+#container
+{
+    margin: 5px 0px;
+    background-color: rgb(188,198,204);
+    border: 2px solid #444;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#container p
+{
+    width: 600px;
+}
+a 
+{
+    text-decoration: none;
+    color: black;
+}
+header nav h3 
+{
+	display: none;
+}
+header nav li 
+{
+	list-style: none;
+	display: inline-block;
+	border: 1px solid black;
+	padding: 5px 10px;
+	background-color: #888;
+}
+header nav li :hover
+{
+    border: 1px solid silver;
+    cursor: pointer;
+}
+header nav ul
+{
+	padding: 0px;
+    margin-left: 30px;
+}
+header 
+{
+	text-align: center;
+    padding-top: 5px;
+	padding: 15px;
+	background-color: #444;
+	color: white;
+}
+header {
+	margin-top: 0px;
+}
+header ul 
+{
+    margin: 0px;
+}
+@media(min-width: 800px)
+{
+    #side_content 
+    {
+        float: right;
+		width: 400px;
+		clear: right;
+		margin-left: 10px;
+        border: 1px solid black;
+        border-radius: 5px;
+    }
+}
+#pic
+{
+    height: 400px;
+    width: 400px;
+}
